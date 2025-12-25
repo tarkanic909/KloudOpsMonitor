@@ -1,35 +1,53 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/tarkanic909/KloudOpsMonitor/agent/internal/config"
 )
 
 func main() {
 	cfg := config.Load()
-	addr := ":" + cfg.Port
 
-	log.Printf("Starting agent %s in %s mode, connecting to backend %s", cfg.AgentID, cfg.Env, cfg.APIURL)
-
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})
 
-	http.HandleFunc("/ping-backend", func(w http.ResponseWriter, r *http.Request) {
-		resp, err := http.Get(cfg.APIURL + "/health")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("backend unreachable"))
+	server := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: mux,
+	}
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("Starting agent %s in %s mode, connecting to backend %s", cfg.AgentID, cfg.Env, cfg.APIURL)
+		err := server.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen error: %v", err)
 		}
+	}()
 
-		defer resp.Body.Close()
-		w.WriteHeader(resp.StatusCode)
-		w.Write([]byte("backend reachable"))
-	})
+	<-stop
+	log.Println("Shutdown signal received")
 
-	log.Printf("Agent running on %s", addr)
-	log.Fatal(http.ListenAndServe(addr, nil))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := server.Shutdown(ctx)
+	if err != nil {
+		log.Printf("Graceful shutdown failed: %v", err)
+	}
+
+	log.Println("server shutdown cleanly")
+
 }
