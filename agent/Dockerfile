@@ -3,7 +3,7 @@
 # =========================
 
 # =========================
-# 1️⃣ Build stagee
+# 1️⃣ Build stage
 # =========================
 FROM golang:1.22-alpine AS builder
 
@@ -25,7 +25,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 
 
 # =========================
-# 2️⃣ Runtime stagee
+# 2️⃣ Production image
 # =========================
 FROM gcr.io/distroless/base-debian12
 
@@ -42,3 +42,14 @@ EXPOSE 8080
 
 ENTRYPOINT ["/app/agent"]
 
+# =========================
+# 3️⃣ Debug image
+# =========================
+FROM alpine:3.19 AS debug
+
+WORKDIR /app
+RUN apk add --no-cache ca-certificates curl bash
+COPY --from=builder /app/agent /app/agent
+
+EXPOSE 8080
+ENTRYPOINT ["/app/agent"]

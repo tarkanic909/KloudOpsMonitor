@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kloudops-postgres
+    environment:
+      POSTGRES_DB: kloudops
+      POSTGRES_USER: kloudops
+      POSTGRES_PASSWORD: kloudops
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kloudops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kloudops-net
+
+  backend:
+    build:
+      context: ../backend-api
+    image: kloudops-backend
+    container_name: kloudops-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://kloudops:kloudops@postgres:5432/kloudops
+      ENV: dev
+    ports:
+      - "8000:8000"
+    networks:
+      - kloudops-net
+
+  agent:
+    build:
+      context: ../agent
+      target: debug   # 🔁 switch to "prod" for production
+    image: kloudops-agent
+    container_name: kloudops-agent
+    depends_on:
+      - backend
+    environment:
+      AGENT_ID: local-agent-1
+      API_URL: http://backend:8000
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    networks:
+      - kloudops-net
+
+volumes:
+  postgres_data:
+
+networks:
+  kloudops-net:
+    driver: bridge
+
