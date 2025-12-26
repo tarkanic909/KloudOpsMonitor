@@ -46,7 +46,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd backend-api
-          pip install -r requierements.txt
+          pip install -r requirements.txt
           
         # 7️⃣ Check of backend import
       - name: Backend import check
