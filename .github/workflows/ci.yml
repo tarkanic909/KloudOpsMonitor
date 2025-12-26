@@ -1,0 +1,56 @@
+name: CI
+
+# When CI starts
+on:
+  push:
+    branches: [ "master", "dev", "feature/*" ]
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    # GitHub runner (VM)
+    runs-on: ubuntu-latest
+    
+    steps:
+        # 1️⃣ Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+        # 2️⃣ Setup go env
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+        
+        # 3️⃣ Build go agent
+      - name: Build Go agent
+        run: |
+          cd agent
+          go build ./...
+          
+        # 4️⃣ Go vet (static analyze)
+      - name: Go vet
+        run: |
+          cd agent
+          go vet ./...
+        
+        # 5️⃣ Setup python env
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          
+        # 6️⃣ Install python dependencies
+      - name: Install backend dependencies
+        run: |
+          cd backend-api
+          pip install -r requirements.txt
+          
+        # 7️⃣ Check of backend import
+      - name: Backend import check
+        run: |
+          cd backend-api
+          python -c "import app.main"
+      
