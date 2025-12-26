@@ -3,7 +3,7 @@ name: CI
 # When CI starts
 on:
   push:
-    branches: [ "master", "dev", "featur/*" ]
+    branches: [ "master", "dev", "feature/*" ]
   pull_request:
     branches:
       - master
@@ -46,7 +46,7 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd backend-api
-          pip install -r requierments.txt
+          pip install -r requierements.txt
           
         # 7️⃣ Check of backend import
       - name: Backend import check
