@@ -1,0 +1,93 @@
+name: CI/CD
+
+# Triggers
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - develop
+      - 'feature/*'
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Go
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      # 3️⃣ Go vet
+      - name: Go vet
+        run: |
+          cd agent
+          go vet ./...
+
+      # 4️⃣ Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 5️⃣ Backend import check
+      - name: Backend import check
+        run: |
+          cd backend-api
+          python -c "import app.main"
+
+  docker-build:
+    runs-on: ubuntu-latest
+
+    env:
+      REGISTRY: ghcr.io/tarkanic909
+
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3️⃣ Login to GitHub Container Registry
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 4️⃣ Build Go agent image (debug)
+      - name: Build Go agent Docker image
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          docker build --target debug -t $REGISTRY/kloudops-agent:$TAG ./agent
+
+      # 5️⃣ Build Python backend image
+      - name: Build Python backend Docker image
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          docker build -t $REGISTRY/kloudops-backend:$TAG ./backend-api
+
+      # 6️⃣ Push images to registry
+      - name: Push Docker images
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          docker push $REGISTRY/kloudops-agent:$TAG
+          docker push $REGISTRY/kloudops-backend:$TAG
+
+      # 7️⃣ List built images
+      - name: List Docker images
+        run: docker images
