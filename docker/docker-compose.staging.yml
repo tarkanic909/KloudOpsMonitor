@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  backend:
+    image: ghcr.io/your-username/kloudops-backend:latest
+    env_file:
+      - .env.staging
+    ports:
+      - "8000:8000"
+
+  agent:
+    image: ghcr.io/your-username/kloudops-agent:latest
+    env_file:
+      - .env.staging
+    ports:
+      - "8080:8080"
+
