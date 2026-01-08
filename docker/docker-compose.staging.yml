@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  backend:
+    image: ghcr.io/tarkanic909/kloudops-backend:latest
+    env_file:
+      - .env.staging
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+
+  agent:
+    image: ghcr.io/tarkanic909/kloudops-agent:latest
+    env_file:
+      - .env.staging
+    ports:
+      - "8080:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+
