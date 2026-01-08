@@ -11,7 +11,8 @@ jobs:
 
     env:
       REGISTRY: ghcr.io/tarkanic909
-      VERSION: ${{ github.ref_name }}
+      VERSION: "${GITHUB_REF_NAME#v}"
+
 
     steps:
       - name: Checkout repository
@@ -49,7 +50,3 @@ jobs:
           docker push $REGISTRY/kloudops-backend:${VERSION}
           docker push $REGISTRY/kloudops-backend:latest
           
-      - name: Deploy to staging
-        run: |
-          docker compose -f docker-compose.staging.yml pull
-          docker compose -f docker-compose.staging.yml up -d

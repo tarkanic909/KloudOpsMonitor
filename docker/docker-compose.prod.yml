@@ -6,10 +6,15 @@ services:
     env_file:
       - .env.prod
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
 
   agent:
     image: ghcr.io/tarkanic909/kloudops-agent:${VERSION}
     env_file:
       - .env.prod
     restart: always
-
