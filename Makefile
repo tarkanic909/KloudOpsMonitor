@@ -1,4 +1,4 @@
-.PHONY: help up down build lint run-backend run-agent
+.PHONY: help up down build lint run-backend run-agent dev-setup
 
 help:
 	@echo "Available targets:"
