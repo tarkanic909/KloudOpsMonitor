@@ -1,4 +1,4 @@
-.PHONY: help up down build lint run-agent
+.PHONY: help up down build lint run-backend run-agent dev-setup
 
 help:
 	@echo "Available targets:"
@@ -19,7 +19,24 @@ build:
 ## lint: - Run linters
 lint:
 	cd agent && go vet ./...
+	
+## venv: Create Python virtual environment
+venv:
+	cd backend-api && python3 -m venv .venv
+
+## install-backend: Install backend dependencies into venv
+install-backend:
+	cd backend-api && . .venv/bin/activate && pip install -r requirements.txt
+
+## run-backend: Run FastAPI locally (dev)
+run-backend:
+	cd backend-api && . .venv/bin/activate && \
+	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ## run-agent: - Run Go agent locally
 run-agent:
 	cd agent && go run ./cmd/agent
+
+## dev-up: Start dev stack with live reload
+dev-up:
+	docker compose --env-file .env -f docker/docker-compose.dev.yml up -d --build
