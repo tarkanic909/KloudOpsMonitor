@@ -26,6 +26,19 @@ lint: lint-go lint-python
 ## lint-go: - Run Go linters
 lint-go:
 	cd agent && go vet ./...
+	
+## venv: Create Python virtual environment
+venv:
+	cd backend-api && python3 -m venv .venv
+
+## install-backend: Install backend dependencies into venv
+install-backend:
+	cd backend-api && . .venv/bin/activate && pip install -r requirements.txt
+
+## run-backend: Run FastAPI locally (dev)
+run-backend:
+	cd backend-api && . .venv/bin/activate && \
+	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ## lint-python: - Lint & format Python code
 lint-python:
