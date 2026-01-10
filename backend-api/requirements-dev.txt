@@ -1,0 +1,12 @@
+# Lint / format
+ruff
+
+# Git hooks
+pre-commit
+
+# Testing
+pytest
+pytest-cov
+
+# Debug / dev helpers
+debugpy

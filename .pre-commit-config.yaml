@@ -1,0 +1,26 @@
+repos:
+  # Python: ruff (lint + format)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend-api/
+        types_or: [python]
+      - id: ruff-format
+        files: ^backend-api/
+        types_or: [python]
+
+  # Go: use Makefile targets (reliable in subdir)
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: gofmt (agent)
+        entry: bash -lc "cd agent && gofmt -w ."
+        language: system
+        files: ^agent/.*\.go$
+      - id: go-vet
+        name: go vet (agent)
+        entry: bash -lc "cd agent && go vet ./..."
+        language: system
+        files: ^agent/.*\.go$
