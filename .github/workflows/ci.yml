@@ -3,7 +3,7 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: ["master", "develop", "feature/*"]
+    branches: ["develop", "feature/*"]
   pull_request: 
     branches: ["master", "develop"]
 
@@ -34,7 +34,13 @@ jobs:
       - name: Install backend dependencies
         run: |
           cd backend-api
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Ruff (lint/format check)
+        run: |
+          cd backend-api
+          ruff check app
+          ruff format app --check
 
       - name: Backend import check
         run: |
@@ -50,6 +56,9 @@ jobs:
       REGISTRY: ghcr.io/tarkanic909
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Compute image tag
         id: meta
         shell: bash
@@ -57,10 +66,6 @@ jobs:
           RAW="${GITHUB_REF_NAME}"
           SAFE="$(echo "$RAW" | tr '[:upper:]' '[:lower:]' | sed 's#[^a-z0-9_.-]#-#g')"
           echo "tag=$SAFE" >> "$GITHUB_OUTPUT"
-
-      
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

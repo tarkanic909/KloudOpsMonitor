@@ -8,10 +8,11 @@ app = FastAPI(title=settings.app_name)
 # API routes
 app.include_router(health_router)
 
+
 @app.on_event("startup")
 def startup():
     print(f"Starting backend in {settings.env} mode")
-    
+
 
 @app.on_event("shutdown")
 def shutdown():
