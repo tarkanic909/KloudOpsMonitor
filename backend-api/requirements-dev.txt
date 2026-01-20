@@ -1,12 +1,12 @@
 # Lint / format
-ruff
+ruff~=0.14.11
 
 # Git hooks
-pre-commit
+pre-commit~=4.5.1
 
 # Testing
-pytest
-pytest-cov
+pytest~=9.0.2
+pytest-cov~=7.0.9
 
 # Debug / dev helpers
-debugpy
+debugpy~=1.8.19
