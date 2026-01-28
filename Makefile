@@ -31,11 +31,31 @@ lint-go:
 venv:
 	cd backend-api && python3 -m venv .venv
 
-## install-backend: Install backend dependencies into venv
-install-backend:
-	cd backend-api && . .venv/bin/activate && pip install -r requirements.txt
+## install-backend: - Install backend runtime deps
+install-backend: venv
+	cd backend-api && . .venv/bin/activate && \
+	pip install -r requirements.txt
 
-## run-backend: Run FastAPI locally (dev)
+## install-backend-dev: - Install backend dev deps
+install-backend-dev: venv
+	cd backend-api && . .venv/bin/activate && \
+	pip install -r requirements-dev.txt
+
+## install-deps: - Install all backend deps (runtime + dev)
+install-deps: install-backend install-backend-dev
+
+## lint-python: - Lint & format Python code
+lint-python:
+	cd backend-api && . .venv/bin/activate && \
+	ruff check app && \
+	ruff format app
+	
+## format-python: - Format Python code
+format-python:
+	cd backend-api && . .venv/bin/activate && \
+	black app
+
+## run-backend: - Run FastAPI locally (dev)
 run-backend:
 	cd backend-api && . .venv/bin/activate && \
 	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

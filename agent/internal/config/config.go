@@ -14,7 +14,7 @@ func Load() Config {
 		AgentID: getEnv("AGENT_ID", "default-agent"),
 		APIURL:  getEnv("API_URL", "http://localhost:8000"),
 		Port:    getEnv("AGENT_PORT", "8080"),
-		Env:     getEnv("AGETNT_ENV", "dev"),
+		Env:     getEnv("AGENT_ENV", "dev"),
 	}
 }
 

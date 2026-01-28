@@ -42,7 +42,7 @@ services:
       AGENT_ID: ${AGENT_ID}
       API_URL: http://backend:8000
       AGENT_API_TOKEN: ${AGENT_API_TOKEN}
-      PORT: 8080
+      AGENT_PORT: 8080
       ENV: dev
     ports:
       - "8080:8080"
