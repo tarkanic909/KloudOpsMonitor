@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app app
 
-USER nonroot:nonroot
+USER 1000:1000
 
 EXPOSE 8000
 
