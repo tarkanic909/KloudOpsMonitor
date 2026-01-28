@@ -27,7 +27,7 @@ lint: lint-go lint-python
 lint-go:
 	cd agent && go vet ./...
 	
-## venv: Create Python virtual environment
+## venv: - Create Python virtual environment
 venv:
 	cd backend-api && python3 -m venv .venv
 
